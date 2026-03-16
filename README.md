@@ -5,8 +5,7 @@
 **Reporting Date:** March 16, 2026  
 
 
-**Group Members:** * 
-Marc Denise Cuizon
+**Group Members:** * Marc Denise Cuizon
 Ron Jared Abajar
 Kristine Urrete
 Antoneett Pelayo
