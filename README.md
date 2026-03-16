@@ -3,7 +3,7 @@
 ### Project Title: MotorPH Payroll System
 **Course:** MO-IT101 – Computer Programming 1 (H1101) 
 **Reporting Date:** March 16, 2026  
-
+Group Members: Marc Denise Cuizon, Ron Jared Abajar, Kristine Urrete, and Antoneett Pelayo
 ---
 
 ## Team Contributions
