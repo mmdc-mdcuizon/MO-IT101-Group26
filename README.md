@@ -1,7 +1,7 @@
 # MO-IT101-Group26
 
 ### Project Title: MotorPH Payroll System
-**Course:** MO-IT101 – Computer Programming 1  
+**Course:** MO-IT101 – Computer Programming 1 (H1101) 
 **Reporting Date:** March 16, 2026  
 
 ---
