@@ -50,5 +50,5 @@ All major development tasks have been successfully completed. This includes requ
 
 For the detailed project schedule and task breakdown, please refer to the documents below:
 
-* [MotorPH Payroll System Project Plan]([[https://docs.google.com/document/your-link-here](https://docs.google.com/spreadsheets/d/1ylhZuK80js75WIrOOc2j5eIuBw7SqvHLw9nGJFbsQFU/edit?usp=sharing)](https://docs.google.com/document/d/1a6dCplgD9gZAr2l60f_x47aeFoFtNGE-F0IMye-iX_c/edit?usp=sharing))
-* [MotorPH Payroll System Progress Report]([https://docs.google.com/spreadsheets/your-link-here](https://docs.google.com/spreadsheets/d/1ylhZuK80js75WIrOOc2j5eIuBw7SqvHLw9nGJFbsQFU/edit?usp=sharing))
+* [MotorPH Payroll System Project Plan](https://docs.google.com/document/d/1a6dCplgD9gZAr2l60f_x47aeFoFtNGE-F0IMye-iX_c/edit?usp=sharing)
+* [MotorPH Payroll System Progress Report](https://docs.google.com/spreadsheets/d/1ylhZuK80js75WIrOOc2j5eIuBw7SqvHLw9nGJFbsQFU/edit?usp=sharing)
