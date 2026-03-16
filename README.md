@@ -24,7 +24,7 @@ The MotorPH Payroll System was developed collaboratively by our four-member team
 * Developed the core data-handling mechanics, allowing the system to successfully read and process the external Employee and Attendance CSV files.
 * Programmed the time-tracking algorithms and set up the main engine that calculates the gross and net pay from June to December.
 
-**Antonette & Kristine**
+**Antoneett & Kristine**
 * **Role:** Access Control & Documentation Leads
 * Designed and implemented the user authentication (Login) system, ensuring the program correctly secures the data and routes users to either the 'Employee' or 'Payroll Staff' menus based on their credentials.
 * Co-managed all official project documentation.
