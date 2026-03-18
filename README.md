@@ -59,9 +59,10 @@ For the detailed project schedule and task breakdown, please refer to the docume
 * [MotorPH Payroll System Project Plan](https://docs.google.com/document/d/1a6dCplgD9gZAr2l60f_x47aeFoFtNGE-F0IMye-iX_c/edit?usp=sharing)
 * [MotorPH Payroll System Progress Report](https://docs.google.com/spreadsheets/d/1ylhZuK80js75WIrOOc2j5eIuBw7SqvHLw9nGJFbsQFU/edit?usp=sharing)
 
-* ## Peer Evaluators - Group 25
-Aaron Lemuel Lopez
-April Joyce Pratama
-Christian Harvey Gonzales
-Cinderella Delloso
-Shane Tifanie Acosta
+ ## Peer Evaluators - Group 25
+ 
+* Aaron Lemuel Lopez
+* April Joyce Pratama
+* Christian Harvey Gonzales
+* Cinderella Delloso
+* Shane Tifanie Acosta
