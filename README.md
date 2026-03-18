@@ -61,6 +61,8 @@ For the detailed project schedule and task breakdown, please refer to the docume
 
  ## Peer Evaluators 
 
+For the QA testing, our code will be evaluated by this assigned group:
+
 **Group 25**
  
 * Aaron Lemuel Lopez
