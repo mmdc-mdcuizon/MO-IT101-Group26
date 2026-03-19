@@ -70,3 +70,5 @@ For the QA testing, our code will be evaluated by this assigned group:
 * Christian Harvey Gonzales
 * Cinderella Delloso
 * Shane Tifanie Acosta
+
+* [MO-IT101_MS2_Group26_QA_Test_Case_Document](https://docs.google.com/spreadsheets/d/1TMPYCDNMihNA3IJg-UvJLmihogVO0fUP3kKPMH3010c/edit?usp=sharing)
