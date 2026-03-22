@@ -3,19 +3,28 @@ import java.io.FileReader;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+// new utils based on feedback
+import java.util.HashMap;
+import java.util.Map;
 // utils na ginamit for this project
+
 public class MotorPH_Payrollv1 {
 
     // local folder ko lang to. yung files kinuha natin sa github ni sir
-    static String empFile = "/home/sirmarcdens/Documents/MAPUA/Practice Files/Java/MotorPH_Payroll/data/employees.csv"; 
-    static String attFile = "/home/sirmarcdens/Documents/MAPUA/Practice Files/Java/MotorPH_Payroll/data/attendance.csv";
+    static String empFile = "data/employees.csv"; 
+    static String attFile = "data/attendance.csv";
     static int year = 2024;
     static int startMonth = 6;
     static int endMonth = 12;
     static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
+  //adding new Hashmap
+    static Map<String, Map<Integer, double[]>> attendanceData = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
+    	loadAttendanceData();
 
         Scanner Login = new Scanner(System.in);
 
@@ -130,37 +139,18 @@ public class MotorPH_Payrollv1 {
     // ================= MONTHLY PAYROLL =================
     static void printMonthlyPayroll(String[] emp, double basicSalary, double hourlyRate, int month) throws Exception {
 
-        double hours1 = 0;
-        double hours2 = 0;
+    	double hours1 = 0;
+    	double hours2 = 0;
 
-        BufferedReader br = new BufferedReader(new FileReader(attFile));
-        br.readLine(); // header
+    	if (attendanceData.containsKey(emp[0].trim())) {
+    	    Map<Integer, double[]> monthlyData = attendanceData.get(emp[0].trim());
 
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (line.trim().isEmpty()) continue;
-
-            String[] a = line.split(",");
-
-            if (!a[0].trim().equals(emp[0].trim())) continue;
-
-            String[] dateParts = a[3].trim().split("/");
-            int m = Integer.parseInt(dateParts[0]);
-            int d = Integer.parseInt(dateParts[1]);
-            int y = Integer.parseInt(dateParts[2]);
-
-            if (m != month || y != year) continue;
-
-            LocalTime login = LocalTime.parse(a[4].trim(), timeFormat);
-            LocalTime logout = LocalTime.parse(a[5].trim(), timeFormat);
-
-            double h = computeWorkHours(login, logout);
-
-            if (d <= 15) hours1 += h;
-            else hours2 += h;
-        }
-
-        br.close();
+    	    if (monthlyData.containsKey(month)) {
+    	        double[] cutoffHours = monthlyData.get(month);
+    	        hours1 = cutoffHours[0];
+    	        hours2 = cutoffHours[1];
+    	    }
+    	}
 
         double gross1 = hours1 * hourlyRate;
         double gross2 = hours2 * hourlyRate;
@@ -315,4 +305,63 @@ public class MotorPH_Payrollv1 {
         br.close();
         return null;
     }
+    
+    
+ // new methods loadAttendanceData to avoid reopening and rereading the CSV for every employee and month
+    static void loadAttendanceData() throws Exception {
+
+        BufferedReader br = new BufferedReader(new FileReader(attFile));
+        br.readLine();
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (line.trim().isEmpty()) continue;
+
+            String[] a = line.split(",");
+
+            String empNo = a[0].trim();
+
+            String[] dateParts = a[3].trim().split("/");
+            int m = Integer.parseInt(dateParts[0]);
+            int d = Integer.parseInt(dateParts[1]);
+            int y = Integer.parseInt(dateParts[2]);
+
+            if (y != year) continue;
+            if (m < startMonth || m > endMonth) continue;
+
+            LocalTime login = LocalTime.parse(a[4].trim(), timeFormat);
+            LocalTime logout = LocalTime.parse(a[5].trim(), timeFormat);
+
+            double h = computeWorkHours(login, logout);
+
+            if (!attendanceData.containsKey(empNo)) {
+                attendanceData.put(empNo, new HashMap<Integer, double[]>());
+            }
+
+            Map<Integer, double[]> monthlyData = attendanceData.get(empNo);
+
+            if (!monthlyData.containsKey(m)) {
+                monthlyData.put(m, new double[]{0, 0});
+            }
+
+            double[] cutoffHours = monthlyData.get(m);
+
+            if (d <= 15) {
+                cutoffHours[0] += h;
+            } else {
+                cutoffHours[1] += h;
+            }
+        }
+
+        br.close();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}
 }
