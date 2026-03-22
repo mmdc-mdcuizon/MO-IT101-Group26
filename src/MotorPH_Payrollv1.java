@@ -6,9 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-// new utils based on feedback
-import java.util.HashMap;
-import java.util.Map;
 // utils na ginamit for this project
 
 public class MotorPH_Payrollv1 {
