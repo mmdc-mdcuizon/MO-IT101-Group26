@@ -3,43 +3,68 @@ import java.io.FileReader;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
-// utils na ginamit for this project
+
 public class MotorPH_Payrollv1 {
 
-    // local folder ko lang to. yung files kinuha natin sa github ni sir
-    static String empFile = "/home/sirmarcdens/Documents/MAPUA/Practice Files/Java/MotorPH_Payroll/data/employees.csv"; 
-    static String attFile = "/home/sirmarcdens/Documents/MAPUA/Practice Files/Java/MotorPH_Payroll/data/attendance.csv";
+    // fixed: ty jared.
+    static String empFile = "data/employees.csv"; 
+    static String attFile = "data/attendance.csv";
+    
     static int year = 2024;
     static int startMonth = 6;
     static int endMonth = 12;
     static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("H:mm");
+    
+    // Hashmap suggestion ni mentor din. actually di ko pa masyado maintindihan to so research nalang din about hashmaps and hashbrowns x.x
+    static Map<String, Map<Integer, double[]>> attendanceData = new HashMap<>();
 
+    // ================= MAIN METHOD =================
     public static void main(String[] args) throws Exception {
+        
+        // Loads attendance data ONCE at the start of the program
+        loadAttendanceData();
 
         Scanner Login = new Scanner(System.in);
+        boolean keepRunning = true; // nagloop ako dito para di mag exit yung after ng task ah. see below
 
-        System.out.println("===== MOTOR PH SYSTEM =====");
-        System.out.print("Username: ");
-        String username = Login.nextLine();
+        // lahat ng nandito magloloop lang hanggang mag "false" o then opt to exit
+        // as per peer evaluators suggested
+        while (keepRunning) {
+            System.out.println("\n===== MOTOR PH SYSTEM =====");
+            System.out.print("Username: ");
+            String username = Login.nextLine();
 
-        System.out.print("Password: ");
-        String password = Login.nextLine();
+            System.out.print("Password: ");
+            String password = Login.nextLine();
 
-        if (!password.equals("12345")) {
-            System.out.println("Incorrect password or username.");
-            Login.close();
-            return;
+            if (!password.equals("12345")) {
+                System.out.println("Incorrect password or username.");
+            } else {
+                // Routes the user to different menus based on who logged in
+                if (username.equals("employee")) {
+                    employeeMenu(Login);
+                } else if (username.equals("payrollstaff")) {
+                    payrollMenu(Login);
+                } else {
+                    System.out.println("Invalid username.");
+                }
+            }
+
+        
+            System.out.print("\nDo you want to log in again or perform another transaction? (Y/N): ");
+            String choice = Login.nextLine().trim().toUpperCase();
+
+           // press N exit na to sya 
+            if (choice.equals("N")) {
+                keepRunning = false;
+                System.out.println("Exiting MotorPH Payroll System. Have a great day!");
+            }
         }
 
-        if (username.equals("employee")) {
-            employeeMenu(Login);
-        } else if (username.equals("payrollstaff")) {
-            payrollMenu(Login);
-        } else {
-            System.out.println("Invalid username.");
-        }
-
+        //baka di nyo makita, dito magcclose yung scanner(keyboard input) pagka N
         Login.close();
     }
 
@@ -99,7 +124,7 @@ public class MotorPH_Payrollv1 {
     static void processAllEmployees() throws Exception {
 
         BufferedReader br = new BufferedReader(new FileReader(empFile));
-        br.readLine(); // header
+        br.readLine(); 
 
         String line;
         while ((line = br.readLine()) != null) {
@@ -111,16 +136,22 @@ public class MotorPH_Payrollv1 {
 
         br.close();
     }
-// payroll staff na part
+
     // ================= CORE PAYROLL =================
     static void processPayroll(String[] emp) throws Exception {
 
         String bsText = emp[13].trim();
         String hrText = emp[18].trim();
 
-
         double basicSalary = Double.parseDouble(cleanNumber(bsText));
         double hourlyRate = Double.parseDouble(cleanNumber(hrText));
+
+       
+        // as per mentor's advice, nilagay ko na dito yung emp name and ID para once nalang sya mag print'
+        System.out.println("\n=================================");
+        System.out.println("Employee #: " + emp[0]);
+        System.out.println("Name: " + emp[1] + ", " + emp[2]);
+        System.out.println("=================================");
 
         for (int month = startMonth; month <= endMonth; month++) {
             printMonthlyPayroll(emp, basicSalary, hourlyRate, month);
@@ -133,38 +164,25 @@ public class MotorPH_Payrollv1 {
         double hours1 = 0;
         double hours2 = 0;
 
-        BufferedReader br = new BufferedReader(new FileReader(attFile));
-        br.readLine(); // header
+       
+        // dito na mag grab sa hours from "hashmap" para di nag magpabalik-balik mag read ng file yung program as per mentor's advice'
+        if (attendanceData.containsKey(emp[0].trim())) {
+            Map<Integer, double[]> monthlyData = attendanceData.get(emp[0].trim());
 
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (line.trim().isEmpty()) continue;
-
-            String[] a = line.split(",");
-
-            if (!a[0].trim().equals(emp[0].trim())) continue;
-
-            String[] dateParts = a[3].trim().split("/");
-            int m = Integer.parseInt(dateParts[0]);
-            int d = Integer.parseInt(dateParts[1]);
-            int y = Integer.parseInt(dateParts[2]);
-
-            if (m != month || y != year) continue;
-
-            LocalTime login = LocalTime.parse(a[4].trim(), timeFormat);
-            LocalTime logout = LocalTime.parse(a[5].trim(), timeFormat);
-
-            double h = computeWorkHours(login, logout);
-
-            if (d <= 15) hours1 += h;
-            else hours2 += h;
+            if (monthlyData.containsKey(month)) {
+                double[] cutoffHours = monthlyData.get(month);
+                hours1 = cutoffHours[0];
+                hours2 = cutoffHours[1];
+            }
         }
 
-        br.close();
+        // If no hours were worked this month, skip printing the payslip
+        if (hours1 == 0 && hours2 == 0) {
+            return;
+        }
 
         double gross1 = hours1 * hourlyRate;
         double gross2 = hours2 * hourlyRate;
-
         double totalGross = gross1 + gross2;
 
         double[] deductions = computeDeductions(basicSalary, totalGross);
@@ -172,30 +190,34 @@ public class MotorPH_Payrollv1 {
         double net1 = gross1;
         double net2 = gross2 - deductions[4];
 
-        System.out.println("=================================");
-        System.out.println("Month: " + month + "/" + year);
-        System.out.println("Employee #: " + emp[0]);
-        System.out.println("Name: " + emp[1] + ", " + emp[2]);
+        // --- plaintext formatting na pina generate ko lang kay Gemini para mas maayos tignan.
 
-        System.out.println("Cutoff 1 (1-15) Hours: " + hours1);
-        System.out.println("Cutoff 1 Gross: " + gross1);
-        System.out.println("Cutoff 1 Net: " + net1);
 
-        System.out.println("Cutoff 2 (16-end) Hours: " + hours2);
-        System.out.println("Cutoff 2 Gross: " + gross2);
+        System.out.println("\n=========================================================");
+        System.out.printf("                  PAYSLIP: %d / %d\n", month, year);
+        System.out.println("=========================================================");
         
-        System.out.println("---------------------------------");
-        System.out.println("SSS Deduction: " + deductions[0]);
-        System.out.println("PhilHealth Deduction: " + deductions[1]);
-        System.out.println("Pag-IBIG Deduction: " + deductions[2]);
-        System.out.println("Withholding Tax: " + deductions[3]);
-        System.out.println("Total Deductions (after gross1 + gross2): " + deductions[4]);
-        System.out.println("---------------------------------");
-        System.out.println("Cutoff 2 Net: " + net2);
-        System.out.println("=================================");
+        System.out.println("[ EARNINGS ]");
+        System.out.println("                       Hours              Gross              Net");
+        
+       
+        System.out.printf("  1st Half (Day 1-15): %-18s %-18s %s\n", hours1, gross1, net1);
+        System.out.printf("  2nd Half (Day 16+) : %-18s %-18s (See Below)\n", hours2, gross2);
+        
+        System.out.println("\n[ GOVERNMENT DEDUCTIONS ]");
+        System.out.printf("  SSS Contribution   : %s\n", deductions[0]);
+        System.out.printf("  PhilHealth         : %s\n", deductions[1]);
+        System.out.printf("  Pag-IBIG           : %s\n", deductions[2]);
+        System.out.printf("  Withholding Tax    : %s\n", deductions[3]);
+        System.out.println("  -------------------------------------------------------");
+        System.out.printf("  Total Deductions   : %s\n", deductions[4]);
+        
+        System.out.println("=========================================================");
+        System.out.printf("  FINAL 2ND CUTOFF NET PAY: %s\n", net2);
+        System.out.println("=========================================================\n");
     }
 
-    // ================= HOURS <ogic natin =================
+    // ================= HOURS LOGIC =================
     static double computeWorkHours(LocalTime login, LocalTime logout) {
 
         LocalTime start = LocalTime.of(8, 0);
@@ -218,10 +240,9 @@ public class MotorPH_Payrollv1 {
     }
 
     // ================= DEDUCTIONS =================
-    // yung logic dito base lang sa binigay na data ni motorph. parang typical pinoy deduction lang to. magdedepende nalang kung ilan sweldo
+    // Calculates SSS, PhilHealth, Pag-IBIG, and Tax based on MotorPH 2024 contribution tables.
     static double[] computeDeductions(double basicSalary, double totalGross) {
 
-        //sss
         double sss = 0;
         if (totalGross <= 3250) { sss = 135.0; } 
         else if (totalGross >= 24750) { sss = 1125.0; } 
@@ -230,20 +251,17 @@ public class MotorPH_Payrollv1 {
             sss = 135.0 + (multiplier * 22.50);
         }
 
-        // 2. PhilHealth 
         double philhealth = 0;
         if (totalGross <= 10000) { philhealth = 150.0; } 
         else if (totalGross >= 60000) { philhealth = 900.0; } 
         else { philhealth = (totalGross * 0.03) / 2; }
 
-        // 3. Pag-IBIG 
         double pagibig = 0;
         if (totalGross > 1500) { pagibig = totalGross * 0.02; } 
         else { pagibig = totalGross * 0.01; }
         
-        if (pagibig > 100) { pagibig = 100.0; } // Max cap
+        if (pagibig > 100) { pagibig = 100.0; } 
 
-        // 4. Withholding Tax 
         double totalContributions = sss + philhealth + pagibig;
         double taxableIncome = totalGross - totalContributions;
         double tax = 0;
@@ -263,8 +281,7 @@ public class MotorPH_Payrollv1 {
         return s.replace("\"", "").replace(",", "").trim();
     }
 
-    // ito dito na yung comma separator. medjo madugo yung part na to hahaha
-    // mas madaling basahin to compared dun sa regex na initial na ginawa ko. ty jared xD
+    // ================= HELPER: SPLIT CSV =================
     static String[] splitEmployeeCSV(String line) {
 
         String[] fields = new String[19];
@@ -295,10 +312,11 @@ public class MotorPH_Payrollv1 {
         return fields;
     }
 
+    // ================= HELPER: FIND EMPLOYEE =================
     static String[] findEmployee(String empNo) throws Exception {
 
         BufferedReader br = new BufferedReader(new FileReader(empFile));
-        br.readLine(); // header
+        br.readLine(); 
 
         String line;
         while ((line = br.readLine()) != null) {
@@ -314,5 +332,55 @@ public class MotorPH_Payrollv1 {
 
         br.close();
         return null;
+    }
+    
+    // ================= LOAD ATTENDANCE DATA (mentor's fix suggestion') =================
+    static void loadAttendanceData() throws Exception {
+
+        BufferedReader br = new BufferedReader(new FileReader(attFile));
+        br.readLine();
+
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (line.trim().isEmpty()) continue;
+
+            // @jared: inedit ko lang vars mo, nag single letter var ka na naman
+            String[] attendanceRow = line.split(",");
+
+            String empNo = attendanceRow[0].trim();
+
+            String[] dateParts = attendanceRow[3].trim().split("/");
+            int monthValue = Integer.parseInt(dateParts[0]);
+            int dayValue = Integer.parseInt(dateParts[1]);
+            int yearValue = Integer.parseInt(dateParts[2]);
+
+            if (yearValue != year) continue;
+            if (monthValue < startMonth || monthValue > endMonth) continue;
+
+            LocalTime login = LocalTime.parse(attendanceRow[4].trim(), timeFormat);
+            LocalTime logout = LocalTime.parse(attendanceRow[5].trim(), timeFormat);
+
+            double hoursWorked = computeWorkHours(login, logout);
+
+            if (!attendanceData.containsKey(empNo)) {
+                attendanceData.put(empNo, new HashMap<Integer, double[]>());
+            }
+
+            Map<Integer, double[]> monthlyData = attendanceData.get(empNo);
+
+            if (!monthlyData.containsKey(monthValue)) {
+                monthlyData.put(monthValue, new double[]{0, 0});
+            }
+
+            double[] cutoffHours = monthlyData.get(monthValue);
+
+            if (dayValue <= 15) {
+                cutoffHours[0] += hoursWorked;
+            } else {
+                cutoffHours[1] += hoursWorked;
+            }
+        }
+
+        br.close();
     }
 }
