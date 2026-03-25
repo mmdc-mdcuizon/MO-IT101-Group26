@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class MotorPH_Payrollv1 {
 
-    // fixed: ty jared.
+    // fixed: based dun sa sabi ni mentor.
     static String empFile = "data/employees.csv"; 
     static String attFile = "data/attendance.csv";
     
@@ -31,7 +31,7 @@ public class MotorPH_Payrollv1 {
         boolean keepRunning = true; // nagloop ako dito para di mag exit yung after ng task ah. see below
 
         // lahat ng nandito magloloop lang hanggang mag "false" o then opt to exit
-        // as per peer evaluators suggested
+        // as the peer evaluators suggested
         while (keepRunning) {
             System.out.println("\n===== MOTOR PH SYSTEM =====");
             System.out.print("Username: ");
@@ -384,3 +384,4 @@ public class MotorPH_Payrollv1 {
         br.close();
     }
 }
+
